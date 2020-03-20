@@ -57,3 +57,31 @@ result.get_statevector()
 # Hadamard and CNOT Gate Combination Result
 # result.get_statevector()
 # array([0.70710678+0.j, 0.70710678+0.j]) Is the result on excuting the circuit.
+
+q = QuantumRegister(2)
+c = ClassicalRegister(2)
+circuit = QuantumCircuit(q, c)
+
+circuit.h(q[0])
+circuit.cx(q[0], q[1])
+circuit.measure(q, c)
+# Applying Hadamard and CX gate to zero vectors and than using measure gate convert it from qauntum to classical.
+#           ┌───┐     ┌─┐
+# q42_0: |0>┤ H ├──■──┤M├───
+#           └───┘┌─┴─┐└╥┘┌─┐
+# q42_1: |0>─────┤ X ├─╫─┤M├
+#                └───┘ ║ └╥┘
+#   c3_0: 0 ═══════════╩══╬═
+#                         ║
+#   c3_1: 0 ══════════════╩═
+
+%matplotlib inline
+circuit.draw(output="mpl")
+
+simulator = Aer.get_backend('qasm_simulator')
+job = execute(circuit, backend=simulator, shots=1024)
+result = job.result()
+
+counts = result.get_counts(circuit)
+from qiskit.tools.visualization import plot_histogram
+plot_histogram(counts)
